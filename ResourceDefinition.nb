@@ -1425,8 +1425,7 @@ Cell[TextData[{
   FormBox[
    RowBox[{
     SuperscriptBox["a", "b"], "mod", " ", "m"}], TraditionalForm]],
-  FormatType->TraditionalForm,ExpressionUUID->
-  "2ed13314-f197-4fc9-8c21-e05fe291a680"],
+  ExpressionUUID->"2ed13314-f197-4fc9-8c21-e05fe291a680"],
  ":"
 }], "Text",
  TaggingRules->{},
@@ -1573,9 +1572,10 @@ Cell[BoxData[
  TaggingRules->{},
  CellID->973710337,ExpressionUUID->"c10ad4ab-6155-4dbb-878a-bf4637980d17"],
 
-Cell["Here is a string with Raku-language defined grammar:", "Text",
+Cell["Here is a string with a Raku-language defined grammar:", "Text",
  TaggingRules->{},
- CellChangeTimes->{{3.996766449507657*^9, 3.996766465547415*^9}},
+ CellChangeTimes->{{3.996766449507657*^9, 3.996766465547415*^9}, {
+  3.996770137609591*^9, 3.996770138030241*^9}},
  CellID->45348425,ExpressionUUID->"680f7538-0ffd-4d59-9ce4-2b06ca9cf852"],
 
 Cell[BoxData[
@@ -3919,7 +3919,15 @@ Cell["Additional information about limitations, issues, etc.", "Text",
        SelectedNotebook[], All, CellContents, AutoScroll -> True]], 
    PassEventsDown -> False, PassEventsUp -> False},
  CellTags->{"DefaultContent", "TabNext"},
- CellID->3773185,ExpressionUUID->"7dfbd5a1-d694-47d0-85d3-8978e3fca171"]
+ CellID->3773185,ExpressionUUID->"7dfbd5a1-d694-47d0-85d3-8978e3fca171"],
+
+Cell["\<\
+URLRead::invhttp: Could not resolve host: www.wolframcloud.com.\
+\>", "Message",
+ CellChangeTimes->{3.9967699296669893`*^9},
+ CellTags->"NotebookAssistantChatbarCell",
+ CellLabel->"During evaluation of In[1]:=",
+ CellID->1519458008,ExpressionUUID->"7d35d86f-b588-4e5e-a73c-492898a89936"]
 }, Open  ]]
 }, Open  ]]
 },
