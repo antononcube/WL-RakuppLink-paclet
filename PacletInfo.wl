@@ -7,7 +7,7 @@ PacletObject[
     "Creator" -> "Anton Antonov",
     "License" -> "MIT",
     "PublisherID" -> "AntonAntonov",
-    "Version" -> "1.0.0",
+    "Version" -> "1.0.1",
     "WolframVersion" -> "13.3+",
     "PrimaryContext" -> "AntonAntonov`RakuppLink`",
     "DocumentationURL" -> "https://resources.wolframcloud.com/PacletRepository/resources",
