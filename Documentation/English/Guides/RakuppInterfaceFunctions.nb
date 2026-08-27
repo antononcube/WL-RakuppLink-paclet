@@ -1,0 +1,457 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     17241,        447]
+NotebookOptionsPosition[     13402,        363]
+NotebookOutlinePosition[     13961,        382]
+CellTagsIndexPosition[     13918,        379]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Rakupp Interface Functions", "GuideTitle",
+ CellID->1241031435,ExpressionUUID->"49673055-9208-49c6-9911-afa6ab799b9d"],
+
+Cell[TextData[{
+ "Interface functions to different kind of evaluations with the C++ Raku \
+compiler/evaluator ",
+ ButtonBox["Rakupp",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/ash/rakupp"], None},
+  ButtonNote->"https://github.com/ash/rakupp"],
+ "."
+}], "GuideAbstract",
+ CellChangeTimes->{{3.996830145940714*^9, 3.996830178760087*^9}, {
+  3.996830216499978*^9, 3.996830234259068*^9}, {3.9968305628132057`*^9, 
+  3.9968305749168673`*^9}},
+ CellID->1654148381,ExpressionUUID->"ec3015fa-3d3a-4974-b965-e84d88766903"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "GuideFunctionsSection",
+ CellID->2096029052,ExpressionUUID->"1977bb54-0527-49e9-9a9e-7363ca7d06e8"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RakuppEval",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppEval"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"ad94618e-5c61-4338-a394-cae75585db7b",ExpressionUUID->
+  "edc7345b-e964-436b-a72d-d87241c69ab6"],
+ " \[LongDash] evaluate Raku code"
+}], "GuideText",
+ CellChangeTimes->{{3.9968310384299107`*^9, 3.996831073306683*^9}},
+ CellID->301564582,ExpressionUUID->"f178733d-0a0a-477a-80ec-4caa73da600c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RakuppCall",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppCall"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"ad94618e-5c61-4338-a394-cae75585db7b",ExpressionUUID->
+  "f7ac0420-a229-462a-a0b0-03a497881352"],
+ " \[LongDash] call a Raku function with Wolfram Language (WL) arguments, \
+returning WL value"
+}], "GuideText",
+ CellChangeTimes->{{3.996831052186274*^9, 3.99683107813405*^9}},
+ CellID->551604445,ExpressionUUID->"9275a871-67d8-4164-9912-5fa54990051b"],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->357792367,ExpressionUUID->"76dc161c-34ad-4ccf-b7fb-301c60391eb8"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RakuppCan",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppCan"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "3286c5f3-e611-48cc-8f5c-14b9ea84856a"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppGrammarFromSource",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppGrammarFromSource"]],
+   "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"ef983e7d-2430-412d-86c4-bdd3019a214c",ExpressionUUID->
+  "ad402899-1c72-4b26-8cac-53e9c586fcc4"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppGrammarFromFile",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppGrammarFromFile"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"ef62baf7-017c-4e4d-a674-7d137fd7d166",ExpressionUUID->
+  "b5b9a8bd-b3a7-4285-abfc-62c004176d2c"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppParse",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppParse"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"df376914-725c-4aa8-803d-753ea2c192d8",ExpressionUUID->
+  "094829c3-9dea-4813-bb02-802cc3a542bf"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppGrammar",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppGrammar"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"d2ba1a64-f019-4bb6-8276-de012d8eaa20",ExpressionUUID->
+  "532adabb-f5c4-498e-b758-a66788ab5f06"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppTree",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppTree"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"73cbd0b0-ff8b-4b2a-b0d8-6ac3ff9224f4",ExpressionUUID->
+  "a5ff59ed-a7d2-4ef6-896c-67a3f1f37e83"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppMatch",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppMatch"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"4551e09a-4b6b-4d8c-b84e-f4b2b1ea742d",ExpressionUUID->
+  "92506f43-8a3f-406c-a437-ba4f0088e649"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppMatchedQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppMatchedQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"be442601-b410-4297-a1a4-d021b21fd361",ExpressionUUID->
+  "bab1f88a-acff-4f1d-89fd-90f04bf467fb"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppMade",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppMade"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"6e53687f-8084-4290-9a7e-8b403289ea94",ExpressionUUID->
+  "e30d6655-8ec7-4b68-9aec-eed0d375196e"],
+ Cell[BoxData[
+  RowBox[{
+  Cell[TextData[StyleBox[
+   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
+    "9a4099b1-8f3f-4970-a8bd-a7087fb438e1"], 
+   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
+    "d53c745d-67b7-4e53-b0ca-cf7f244307dd", 
+     "95410e0e-1836-4488-957a-bcc26b55371b"], $CellContext`cellobj$$ = 
+    CellObject[
+    "9ae5321d-4737-47fc-850a-5867eac89804", 
+     "afc49d51-1c99-43f3-956c-c03a095770cb"]}, 
+    TemplateBox[{
+      GraphicsBox[{{
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         CircleBox[{0, 0}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
+       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
+       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
+       BaselinePosition -> (Center -> 
+        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
+     "InlineListingAddButton"],
+    Initialization:>($CellContext`nbobj$$ = 
+      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
+  "InlineListingAddButton",ExpressionUUID->
+  "9ae5321d-4737-47fc-850a-5867eac89804"]
+}], "InlineGuideFunctionListing",
+ CellChangeTimes->{{3.996830358198101*^9, 3.996830418306902*^9}, {
+  3.9968304530912848`*^9, 3.996830487772669*^9}, {3.996830525839616*^9, 
+  3.9968305396867657`*^9}, {3.9968305941817217`*^9, 3.9968306259507103`*^9}},
+ CellID->462100569,ExpressionUUID->"01b2faf1-591f-4c75-bf65-621cc18a638a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->1684693287,ExpressionUUID->"06c9aa76-9c59-494a-9e86-a58d8ac5d28d"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RakuppVersion",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppVersion"]], 
+  "InlineGuideFunction",ExpressionUUID->
+  "542b0ebd-b3f2-4f2c-b162-0e214c3407df"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppLoad",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppLoad"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"9b2f6853-99fb-4b76-b98f-dfb2b20f6307",ExpressionUUID->
+  "8375f79c-9667-4118-a903-d6624af7f5b9"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppShutdown",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppShutdown"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"0987bd5a-eed3-4eb8-993c-e2a47ac62626",ExpressionUUID->
+  "3ff0ba94-386d-42e9-8e78-a70a24441e2e"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RakuppClose",
+   BaseStyle->"Link",
+   ButtonData->"paclet:AntonAntonov/RakuppLink/ref/RakuppClose"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"c00f934d-11d5-4960-8057-4389243ed3db",ExpressionUUID->
+  "6f9169ee-0b92-4375-819e-d4d8a0fbabf3"],
+ Cell[BoxData[
+  RowBox[{
+  Cell[TextData[StyleBox[
+   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
+    "a18c3773-9752-4993-af17-673e1f93cf0c"], 
+   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
+    "d53c745d-67b7-4e53-b0ca-cf7f244307dd", 
+     "95410e0e-1836-4488-957a-bcc26b55371b"], $CellContext`cellobj$$ = 
+    CellObject[
+    "320ae96d-130e-4a8f-ad1c-b18fd2be2808", 
+     "36f12ee7-2254-4cc5-be3d-19cc02481afd"]}, 
+    TemplateBox[{
+      GraphicsBox[{{
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         CircleBox[{0, 0}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
+       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
+       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
+       BaselinePosition -> (Center -> 
+        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
+     "InlineListingAddButton"],
+    Initialization:>($CellContext`nbobj$$ = 
+      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
+  "InlineListingAddButton",ExpressionUUID->
+  "320ae96d-130e-4a8f-ad1c-b18fd2be2808"]
+}], "InlineGuideFunctionListing",
+ CellChangeTimes->{{3.996830445321113*^9, 3.996830463981059*^9}, {
+  3.996830497642178*^9, 3.996830523652709*^9}, {3.9968306294998903`*^9, 
+  3.996830641600803*^9}},
+ CellID->68188914,ExpressionUUID->"204361ae-a4c1-4cf5-ae0b-c831501e8238"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tech Notes", "GuideTutorialsSection",
+ CellID->1223395631,ExpressionUUID->"4e2ca5de-0a37-4392-9b14-fd3f8d58aad6"],
+
+Cell["XXXX", "GuideTutorial",
+ CellID->1601933839,ExpressionUUID->"a05b201d-75fc-464b-b3d1-059dcee8c11f"],
+
+Cell["XXXX", "GuideTutorial",
+ CellID->699549634,ExpressionUUID->"fd8ebe30-866f-40aa-bcda-3601761db5b9"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "GuideMoreAboutSection",
+ CellChangeTimes->{{3.8430423939366693`*^9, 3.843042395176153*^9}},
+ CellID->2005214960,ExpressionUUID->"81c72824-8622-4706-9c6f-165d6bda0043"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->1186960349,ExpressionUUID->"20599988-4347-4d68-a1d4-e55069ab9a5d"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->1266988660,ExpressionUUID->"ae63cee3-6622-4ddd-932f-3bed6ae3f8a4"]
+}, Open  ]],
+
+Cell["Related Links", "GuideRelatedLinksSection",
+ CellID->1978048615,ExpressionUUID->"609492ee-a98c-49ce-94cf-35743b07149e"],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->2016216745,ExpressionUUID->"3dfee08b-b461-4db6-8e0d-4d5f49f586bc"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["1.0.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"2e6fabc7-8be9-4912-bb37-df13e92d1653"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"8866e48c-57c6-4082-aac0-9e1e14eb4b4c"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "03a9ae28-fd3d-41a0-aca3-2b68aa260bda"]
+}], "History",
+ CellChangeTimes->{{3.9968305489965363`*^9, 3.996830551514682*^9}},
+ CellID->1410367202,ExpressionUUID->"12efc573-d5df-4a21-aa7b-74dac5ea2d9f"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection",
+ CellID->117068428,ExpressionUUID->"014cce39-c355-4c68-9509-6700a58e40d3"],
+
+Cell["Guide", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->474048744,ExpressionUUID->"ec0d1337-7b17-4ed0-9967-801e8148381a"],
+
+Cell["AntonAntonov/RakuppLink", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->172910038,ExpressionUUID->"090371fb-f88a-4fde-a3fb-048f1ba09875"],
+
+Cell["AntonAntonov`RakuppLink`", "Categorization",
+ CellLabel->"Context",
+ CellID->553634275,ExpressionUUID->"3b4edd04-3161-4eb2-a0ad-b014c35f864a"],
+
+Cell["AntonAntonov/RakuppLink/guide/RakuppInterfaceFunctions", \
+"Categorization",
+ CellLabel->"URI",
+ CellID->2032101121,ExpressionUUID->"72b547af-18f3-45a2-bbba-24ac655fee59"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->2091102406,ExpressionUUID->"73ee6612-a881-46f9-8ce6-a3faf04a820b"],
+
+Cell["XXXX", "Keywords",
+ CellID->1588254487,ExpressionUUID->"a3be9303-20e9-49b7-916d-21e73c6038ed"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{1249, 996},
+WindowMargins->{{Automatic, 1087}, {Automatic, 66}},
+TaggingRules-><|"Paclet" -> "AntonAntonov/RakuppLink"|>,
+Magnification:>1.25 Inherited,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (July 2, 2026)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "GuidePageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"ccb17348-7c33-46aa-a676-39859d8419fe"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 124, 1, 124, "GuideTitle",ExpressionUUID->"49673055-9208-49c6-9911-afa6ab799b9d",
+ CellID->1241031435],
+Cell[703, 25, 542, 13, 40, "GuideAbstract",ExpressionUUID->"ec3015fa-3d3a-4974-b965-e84d88766903",
+ CellID->1654148381]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1282, 43, 109, 1, 102, "GuideFunctionsSection",ExpressionUUID->"1977bb54-0527-49e9-9a9e-7363ca7d06e8",
+ CellID->2096029052],
+Cell[1394, 46, 520, 12, 35, "GuideText",ExpressionUUID->"f178733d-0a0a-477a-80ec-4caa73da600c",
+ CellID->301564582],
+Cell[1917, 60, 578, 13, 35, "GuideText",ExpressionUUID->"9275a871-67d8-4164-9912-5fa54990051b",
+ CellID->551604445],
+Cell[CellGroupData[{
+Cell[2520, 77, 103, 1, 38, "GuideDelimiter",ExpressionUUID->"76dc161c-34ad-4ccf-b7fb-301c60391eb8",
+ CellID->357792367],
+Cell[2626, 80, 4962, 118, 88, "InlineGuideFunctionListing",ExpressionUUID->"01b2faf1-591f-4c75-bf65-621cc18a638a",
+ CellID->462100569]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7625, 203, 104, 1, 38, "GuideDelimiter",ExpressionUUID->"06c9aa76-9c59-494a-9e86-a58d8ac5d28d",
+ CellID->1684693287],
+Cell[7732, 206, 2967, 72, 35, "InlineGuideFunctionListing",ExpressionUUID->"204361ae-a4c1-4cf5-ae0b-c831501e8238",
+ CellID->68188914]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10748, 284, 119, 1, 105, "GuideTutorialsSection",ExpressionUUID->"4e2ca5de-0a37-4392-9b14-fd3f8d58aad6",
+ CellID->1223395631],
+Cell[10870, 287, 105, 1, 33, "GuideTutorial",ExpressionUUID->"a05b201d-75fc-464b-b3d1-059dcee8c11f",
+ CellID->1601933839],
+Cell[10978, 290, 104, 1, 33, "GuideTutorial",ExpressionUUID->"fd8ebe30-866f-40aa-bcda-3601761db5b9",
+ CellID->699549634]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11119, 296, 191, 2, 105, "GuideMoreAboutSection",ExpressionUUID->"81c72824-8622-4706-9c6f-165d6bda0043",
+ CellID->2005214960],
+Cell[11313, 300, 106, 1, 33, "GuideMoreAbout",ExpressionUUID->"20599988-4347-4d68-a1d4-e55069ab9a5d",
+ CellID->1186960349],
+Cell[11422, 303, 106, 1, 33, "GuideMoreAbout",ExpressionUUID->"ae63cee3-6622-4ddd-932f-3bed6ae3f8a4",
+ CellID->1266988660]
+}, Open  ]],
+Cell[11543, 307, 125, 1, 105, "GuideRelatedLinksSection",ExpressionUUID->"609492ee-a98c-49ce-94cf-35743b07149e",
+ CellID->1978048615],
+Cell[CellGroupData[{
+Cell[11693, 312, 111, 1, 102, "MetadataSection",ExpressionUUID->"3dfee08b-b461-4db6-8e0d-4d5f49f586bc",
+ CellID->2016216745],
+Cell[11807, 315, 548, 13, 36, "History",ExpressionUUID->"12efc573-d5df-4a21-aa7b-74dac5ea2d9f",
+ CellID->1410367202],
+Cell[CellGroupData[{
+Cell[12380, 332, 122, 1, 29, "CategorizationSection",ExpressionUUID->"014cce39-c355-4c68-9509-6700a58e40d3",
+ CellID->117068428],
+Cell[12505, 335, 133, 2, 92, "Categorization",ExpressionUUID->"ec0d1337-7b17-4ed0-9967-801e8148381a",
+ CellID->474048744],
+Cell[12641, 339, 151, 2, 92, "Categorization",ExpressionUUID->"090371fb-f88a-4fde-a3fb-048f1ba09875",
+ CellID->172910038],
+Cell[12795, 343, 148, 2, 92, "Categorization",ExpressionUUID->"3b4edd04-3161-4eb2-a0ad-b014c35f864a",
+ CellID->553634275],
+Cell[12946, 347, 177, 3, 92, "Categorization",ExpressionUUID->"72b547af-18f3-45a2-bbba-24ac655fee59",
+ CellID->2032101121]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[13160, 355, 111, 1, 28, "KeywordsSection",ExpressionUUID->"73ee6612-a881-46f9-8ce6-a3faf04a820b",
+ CellID->2091102406],
+Cell[13274, 358, 100, 1, 92, "Keywords",ExpressionUUID->"a3be9303-20e9-49b7-916d-21e73c6038ed",
+ CellID->1588254487]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
