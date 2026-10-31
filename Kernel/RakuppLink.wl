@@ -3,10 +3,6 @@
 (*
 The Wolfram Language (WL) code below is taken from: https://github.com/ash/rakupp/blob/main/bindings/wolfram/RakuLang.wl .
 Author: Andrew Shitov
-
-This paclet is an example.
-The intent is to be released in Wolfram Language Paclet Repository (https://resources.wolframcloud.com/PacletRepository)
-by Andrew Shitov.
 *)
 
 (* RakuLang — Raku from the Wolfram Language, over librakupp's C ABI.
@@ -65,6 +61,8 @@ $ff = <||>;        (* name -> ForeignFunction *)
 $rk = None;        (* RkInterp *)
 $ctx = None;       (* RkCtx *)
 $libPath = None;
+$outCb = None;     (* the rk_set_output callback; outlives RakuppShutdown *)
+$outBag = {};      (* captured writes, {{...}, {isErr, ByteArray}} nested *)
 
 (* ---- the C declarations ----------------------------------------------------
  * Mirrors include/rakupp/rakupp.h + rakupp_ext.h one-to-one, so it can be
@@ -82,40 +80,43 @@ $signatures = <|
   "rk_version"      -> ({} -> cbytes),
   "rk_ctx"          -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
   "rk_eval"         -> ({"OpaqueRawPointer", cbytes, "RawPointer"::["OpaqueRawPointer"]} -> "CInt"),
-"rk_last_error"   -> ({"OpaqueRawPointer"} -> cbytes),
-"rk_grammar_shim" -> ({} -> cbytes),
+  "rk_last_error"   -> ({"OpaqueRawPointer"} -> cbytes),
+  "rk_grammar_shim" -> ({} -> cbytes),
+  (* the RkOutputFn goes in as an OpaqueRawPointer: that is how a
+     ForeignCallback is passed; a function type is not accepted here *)
+  "rk_set_output"   -> ({"OpaqueRawPointer", "OpaqueRawPointer", "OpaqueRawPointer"} -> "Void"),
 
-(* rakupp_ext.h — constructing *)
-"rk_any"    -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
-"rk_bool"   -> ({"OpaqueRawPointer", "CInt"} -> "OpaqueRawPointer"),
-"rk_int"    -> ({"OpaqueRawPointer", "Integer64"} -> "OpaqueRawPointer"),
-"rk_int_s"  -> ({"OpaqueRawPointer", cbytes} -> "OpaqueRawPointer"),
-"rk_num"    -> ({"OpaqueRawPointer", "CDouble"} -> "OpaqueRawPointer"),
-"rk_rat_s"  -> ({"OpaqueRawPointer", cbytes, cbytes} -> "OpaqueRawPointer"),
-"rk_str"    -> ({"OpaqueRawPointer", cbytes, "UnsignedInteger64"} -> "OpaqueRawPointer"),
-"rk_array"  -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
-"rk_push"   -> ({"OpaqueRawPointer", "OpaqueRawPointer", "OpaqueRawPointer"} -> "Void"),
-"rk_hash"   -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
-"rk_set"    -> ({"OpaqueRawPointer", "OpaqueRawPointer", cbytes, "UnsignedInteger64", "OpaqueRawPointer"} -> "Void"),
+  (* rakupp_ext.h — constructing *)
+  "rk_any"    -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
+  "rk_bool"   -> ({"OpaqueRawPointer", "CInt"} -> "OpaqueRawPointer"),
+  "rk_int"    -> ({"OpaqueRawPointer", "Integer64"} -> "OpaqueRawPointer"),
+  "rk_int_s"  -> ({"OpaqueRawPointer", cbytes} -> "OpaqueRawPointer"),
+  "rk_num"    -> ({"OpaqueRawPointer", "CDouble"} -> "OpaqueRawPointer"),
+  "rk_rat_s"  -> ({"OpaqueRawPointer", cbytes, cbytes} -> "OpaqueRawPointer"),
+  "rk_str"    -> ({"OpaqueRawPointer", cbytes, "UnsignedInteger64"} -> "OpaqueRawPointer"),
+  "rk_array"  -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
+  "rk_push"   -> ({"OpaqueRawPointer", "OpaqueRawPointer", "OpaqueRawPointer"} -> "Void"),
+  "rk_hash"   -> ({"OpaqueRawPointer"} -> "OpaqueRawPointer"),
+  "rk_set"    -> ({"OpaqueRawPointer", "OpaqueRawPointer", cbytes, "UnsignedInteger64", "OpaqueRawPointer"} -> "Void"),
 
-(* rakupp_ext.h — inspecting *)
-"rk_type"    -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CInt"),
-"rk_truthy"  -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CInt"),
-"rk_int_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "Integer64"),
-"rk_num_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CDouble"),
-"rk_str_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer", "RawPointer"::["UnsignedInteger64"]} -> cbytes),
-"rk_elems"   -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "UnsignedInteger64"),
-"rk_at_pos"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64"} -> "OpaqueRawPointer"),
-"rk_key_at"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64", "RawPointer"::["UnsignedInteger64"]} -> cbytes),
-"rk_val_at"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64"} -> "OpaqueRawPointer"),
+  (* rakupp_ext.h — inspecting *)
+  "rk_type"    -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CInt"),
+  "rk_truthy"  -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CInt"),
+  "rk_int_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "Integer64"),
+  "rk_num_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "CDouble"),
+  "rk_str_get" -> ({"OpaqueRawPointer", "OpaqueRawPointer", "RawPointer"::["UnsignedInteger64"]} -> cbytes),
+  "rk_elems"   -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "UnsignedInteger64"),
+  "rk_at_pos"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64"} -> "OpaqueRawPointer"),
+  "rk_key_at"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64", "RawPointer"::["UnsignedInteger64"]} -> cbytes),
+  "rk_val_at"  -> ({"OpaqueRawPointer", "OpaqueRawPointer", "UnsignedInteger64"} -> "OpaqueRawPointer"),
 
-(* rakupp_ext.h — calling back into Raku, errors, roots *)
-"rk_call"        -> ({"OpaqueRawPointer", cbytes, "RawPointer"::["OpaqueRawPointer"], "UnsignedInteger64"} -> "OpaqueRawPointer"),
-"rk_can"         -> ({"OpaqueRawPointer", cbytes} -> "CInt"),
-"rk_error"       -> ({"OpaqueRawPointer"} -> cbytes),
-"rk_clear_error" -> ({"OpaqueRawPointer"} -> "Void"),
-"rk_root"        -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "OpaqueRawPointer"),
-"rk_unroot"      -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "Void")
+  (* rakupp_ext.h — calling back into Raku, errors, roots *)
+  "rk_call"        -> ({"OpaqueRawPointer", cbytes, "RawPointer"::["OpaqueRawPointer"], "UnsignedInteger64"} -> "OpaqueRawPointer"),
+  "rk_can"         -> ({"OpaqueRawPointer", cbytes} -> "CInt"),
+  "rk_error"       -> ({"OpaqueRawPointer"} -> cbytes),
+  "rk_clear_error" -> ({"OpaqueRawPointer"} -> "Void"),
+  "rk_root"        -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "OpaqueRawPointer"),
+  "rk_unroot"      -> ({"OpaqueRawPointer", "OpaqueRawPointer"} -> "Void")
 |>;
 
 (* ---- failing ---------------------------------------------------------------
@@ -125,11 +126,11 @@ $signatures = <|
  *)
 
 rakuFail[msg_String] :=
-    Throw[Failure["RakuError",
-      <|"MessageTemplate" -> msg, "MessageParameters" -> <||>|>], "RakuLang"];
+  Throw[Failure["RakuError",
+    <|"MessageTemplate" -> msg, "MessageParameters" -> <||>|>], "RakuLang"];
 
 SetAttributes[public, HoldFirst];
-public[body_] := Catch[body, "RakuLang"];
+public[body_] := With[{r = Catch[body, "RakuLang"]}, flushOutput[]; r];
 
 (* ---- finding and loading the library --------------------------------------
  * The same contract as every binding: a library you NAME is used as given —
@@ -141,14 +142,21 @@ public[body_] := Catch[body, "RakuLang"];
 
 libraryFileName[] := Switch[$OperatingSystem,
   "MacOSX", "librakupp.dylib",
-  "Windows", "rakupp.dll",
+  "Windows", "librakupp.dll",
   _, "librakupp.so"];
+
+(* The not-found error carries the commands, in a directory of their own so a
+ * static development build/ stays as it is (bindings/README.md, section 1). *)
+buildHint[] := "To build the library from a rakupp source tree, leaving that build as it is:\n" <>
+  "  cmake -B build-shared -DCMAKE_BUILD_TYPE=Release -DRAKUPP_BUILD_SHARED=ON\n" <>
+  "  cmake --build build-shared -j --target rakupp_shared\n" <>
+  "then set RAKUPP_LIB to the full path of the " <> libraryFileName[] <> " it builds.";
 
 explicitCandidate[given_] := Which[
   StringQ[given], {given, "the path passed to RakuppLoad"},
   StringQ[Environment["RAKUPP_LIB"]], {Environment["RAKUPP_LIB"], "RAKUPP_LIB"},
   StringQ[Environment["RAKUPP_HOME"]],
-  {FileNameJoin[{Environment["RAKUPP_HOME"], "lib", libraryFileName[]}], "RAKUPP_HOME"},
+    {FileNameJoin[{Environment["RAKUPP_HOME"], "lib", libraryFileName[]}], "RAKUPP_HOME"},
   True, None];
 
 findRakupp[] := Module[{path = Environment["PATH"], sep, exe},
@@ -165,7 +173,7 @@ searchCandidates[] := Module[{exe = findRakupp[], dirs},
   dirs = DeleteDuplicates[DirectoryName /@ DeleteCases[
     {exe, Quiet[AbsoluteFileName[exe]]}, Except[_String]]];
   Flatten[{FileNameJoin[{#, "..", "lib", libraryFileName[]}],
-    FileNameJoin[{#, libraryFileName[]}]} & /@ dirs]];
+           FileNameJoin[{#, libraryFileName[]}]} & /@ dirs]];
 
 loadLibrary[path_String] := Module[{ff},
   If[!FileExistsQ[path], Return[$Failed]];
@@ -181,8 +189,8 @@ initInterp[given_] := Module[{exp, ff = $Failed, used, tried = {}, out},
     ff = loadLibrary[exp[[1]]];
     If[ff === $Failed,
       rakuFail[exp[[2]] <> " names " <> exp[[1]] <>
-          ", which could not be loaded (missing, the wrong architecture, or not a librakupp with the rk_* surface).\n" <>
-          "It is used as given \[LongDash] unset it to search for a library instead."]];
+        ", which could not be loaded (missing, the wrong architecture, or not a librakupp with the rk_* surface).\n" <>
+        "It is used as given \[LongDash] unset it to search for a library instead."]];
     used = exp[[1]],
     (* nothing named: search *)
     Do[
@@ -190,15 +198,16 @@ initInterp[given_] := Module[{exp, ff = $Failed, used, tried = {}, out},
       If[ff === $Failed, AppendTo[tried, cand], used = cand; Break[]],
       {cand, searchCandidates[]}];
     If[ff === $Failed,
-      rakuFail["librakupp not found. Set RAKUPP_LIB to the library file, or RAKUPP_HOME to an install prefix containing lib/" <> libraryFileName[] <>
-          ". A build directory configured without -DRAKUPP_BUILD_SHARED=ON is static-only and has no library." <>
-          If[tried === {}, "", "\nTried:\n  " <> StringRiffle[tried, "\n  "]]]]];
+      rakuFail["librakupp not found. Set RAKUPP_LIB to the library file (a release archive carries one), or RAKUPP_HOME to an install prefix containing lib/" <> libraryFileName[] <>
+        ".\nA build directory configured without -DRAKUPP_BUILD_SHARED=ON is static-only and has no library. " <> buildHint[] <>
+        If[tried === {}, "", "\nTried:\n  " <> StringRiffle[tried, "\n  "]]]]];
   $ff = ff; $libPath = used;
   $rk = $ff["rk_new"][OpaqueRawPointer[0]];
   If[NullRawPointerQ[$rk],
     $rk = None;
     rakuFail["rk_new refused: an interpreter is already live in this process"]];
   $ctx = $ff["rk_ctx"][$rk];
+  installCapture[];
   (* the grammar shim ships inside the library, already NUL-terminated — its
      pointer goes straight back in as rk_eval's source *)
   out = RawMemoryAllocate["OpaqueRawPointer", 1];
@@ -207,6 +216,52 @@ initInterp[given_] := Module[{exp, ff = $Failed, used, tried = {}, out},
 ];
 
 ensure[] := If[$rk === None, initInterp[None]];
+
+(* ---- what Raku prints -----------------------------------------------------
+ * Captured with rk_set_output instead of left on the kernel's stdout, which a
+ * notebook never shows (issue #56). Each write is kept as bytes, because one
+ * may end inside a UTF-8 character, and flushOutput hands the lot to the
+ * kernel as each public call returns, in the order written: in a notebook as
+ * print cells, in a script as the same text on $Output and stderr.
+ *
+ * A Raku thread other than the one inside the call may write too: the kernel
+ * runs a foreign thread's callback itself, between evaluations, so what a
+ * `start` block prints after the call returned is held and shown by the next
+ * call.
+ *)
+
+installCapture[] := (
+  If[$outCb === None,
+    $outCb = CreateForeignCallback[
+      Function[{ud, text, len, isErr},
+        If[len > 0, $outBag = {$outBag, {isErr, RawMemoryImport[text, {"ByteArray", len}]}}]],
+      {"OpaqueRawPointer", "RawPointer"::["UnsignedInteger8"], "UnsignedInteger64", "CInt"} -> "Void"]];
+  $ff["rk_set_output"][$rk, $outCb, OpaqueRawPointer[0]]);
+
+(* True when any of what it emits went to stdout: RakuppEval's REPL rule *)
+flushOutput[] := If[$outBag === {}, False,
+  Module[{writes = Partition[Flatten[$outBag], 2]},
+    $outBag = {};
+    Scan[emitRun, SplitBy[writes, First]];
+    MemberQ[writes, {0, _}]]];
+
+(* one run of consecutive writes to one stream; bytes that are not UTF-8
+   arrive one character per byte rather than not at all *)
+emitRun[run_] := Module[{bytes = Join @@ run[[All, 2]], text, isOut = run[[1, 1]] === 0},
+  text = Quiet@Check[ByteArrayToString[bytes], FromCharacterCode[Normal[bytes]]];
+  If[$FrontEnd =!= Null,
+    (* a notebook: a print cell per run, stderr in red *)
+    Print[If[isOut, #, Style[#, Darker[Red]]] &[StringDelete[text, "\n" ~~ EndOfString]]],
+    (* a script: the text as written, stdout in order with Print *)
+    utf8Write[If[isOut, $Output, Streams["stderr"]], text]]];
+
+(* wolframscript opens its streams ASCII, which would print a check mark as
+   \[Checkmark]; the text Raku wrote goes out as UTF-8, and the streams are
+   put back as they were *)
+utf8Write[streams_List, text_String] := Module[{old = Options[#, CharacterEncoding] & /@ streams},
+  Quiet[SetOptions[#, CharacterEncoding -> "UTF-8"] & /@ streams];
+  WriteString[#, text] & /@ streams;
+  Quiet[MapThread[SetOptions, {streams, old}]];];
 
 (* ---- strings across the boundary ------------------------------------------ *)
 
@@ -253,17 +308,29 @@ fromWL[a_Association] := Module[{h = $ff["rk_hash"][$ctx]},
   h];
 fromWL[x_] := rakuFail["cannot pass a " <> ToString[Head[x]] <> " to Raku"];
 
+(* An Int, exactly. rk_int_get is an int64 and BigInt::toLL saturates there,
+   so INT64_MAX and INT64_MIN may each be a wider Int in disguise; the digits
+   settle it, and read back as the same number when they are not. Wolfram
+   integers have no width, so nothing is lost here. *)
+wideInt[v_] := Module[{n = $ff["rk_int_get"][$ctx, v], s},
+  If[n =!= 9223372036854775807 && n =!= -9223372036854775808, Return[n]];
+  s = readStr[v];
+  Which[
+    !StringMatchQ[s, RegularExpression["-?[0-9]+"]], n,   (* a non-decimal allomorph *)
+    StringStartsQ[s, "-"], -FromDigits[StringDrop[s, 1]],
+    True, FromDigits[s]]];
+
 (* RkType: 0 Any, 1 Bool, 2 Int, 3 Num, 4 Rat, 5 Str, 6 Array, 7 Hash, 8 Other *)
 toWL[v_] := Switch[$ff["rk_type"][$ctx, v],
   0, Null,
   1, $ff["rk_truthy"][$ctx, v] =!= 0,
-  2, $ff["rk_int_get"][$ctx, v],
+  2, wideInt[v],
   3 | 4, $ff["rk_num_get"][$ctx, v],
   6, Table[toWL[$ff["rk_at_pos"][$ctx, v, i]],
-    {i, 0, $ff["rk_elems"][$ctx, v] - 1}],
+       {i, 0, $ff["rk_elems"][$ctx, v] - 1}],
   7, Association @ Table[
-    readKey[v, i] -> toWL[$ff["rk_val_at"][$ctx, v, i]],
-    {i, 0, $ff["rk_elems"][$ctx, v] - 1}],
+       readKey[v, i] -> toWL[$ff["rk_val_at"][$ctx, v, i]],
+       {i, 0, $ff["rk_elems"][$ctx, v] - 1}],
   _, readStr[v]];                                          (* RK_STR / RK_OTHER stringify *)
 
 (* ---- rk_call over raw engine values ---------------------------------------- *)
@@ -288,15 +355,21 @@ RakuppLoad[path_String] := public[
   initInterp[path]; $libPath];
 
 RakuppShutdown[] := (
-  If[$rk =!= None, $ff["rk_free"][$rk]];
+  If[$rk =!= None, $ff["rk_free"][$rk]];   (* rk_free restores the streams *)
+  flushOutput[];
   $rk = None; $ctx = None; $ff = <||>; $libPath = None;);
 
-RakuppEval[src_String] := public[Module[{out, status},
+(* The REPL's rule (src/Repl.cpp, issue #66): the value is the answer only
+   when the code wrote nothing to stdout, so `say 3 ** 2` shows 9, not 9 and
+   True, and returns Null as Print does. stderr does not count. *)
+RakuppEval[src_String] := public[Module[{out, status, v},
   ensure[];
+  flushOutput[];   (* what a `start` block printed earlier is not this eval's *)
   out = RawMemoryAllocate["OpaqueRawPointer", 1];
   status = $ff["rk_eval"][$rk, cstr[src], out];
   If[status =!= 0, rakuFail[lastError[]]];
-  toWL[RawMemoryRead[out]]]];
+  v = toWL[RawMemoryRead[out]];
+  If[flushOutput[], Null, v]]];
 
 RakuppCall[name_String, args___] := public[(
   ensure[];
@@ -314,7 +387,7 @@ RakuppGrammarFromSource[src_String, OptionsPattern[]] := public[Module[
   ensure[];
   If[actions =!= "" && name === "", rakuFail["\"Actions\" needs \"Name\" as well"]];
   gid = toWL[callRaw["rk-grammar-compile", fromWL /@ {src, name, actions}]];
-  RakuppGrammar[gid, If[name === "", "<anonymous>", name]]]];
+  RakuGrammar[gid, If[name === "", "<anonymous>", name]]]];
 
 Options[RakuppGrammarFromFile] = {"Name" -> "", "Actions" -> ""};
 RakuppGrammarFromFile[path_String, OptionsPattern[]] := public[Module[{src, g},
@@ -323,11 +396,11 @@ RakuppGrammarFromFile[path_String, OptionsPattern[]] := public[Module[{src, g},
   g = RakuppGrammarFromSource[src,
     "Name" -> OptionValue["Name"], "Actions" -> OptionValue["Actions"]];
   If[FailureQ[g], Throw[g, "RakuLang"]];
-  RakuppGrammar[g[[1]], FileNameTake[path] <>
-      If[OptionValue["Name"] === "", "", "#" <> OptionValue["Name"]]]]];
+  RakuGrammar[g[[1]], FileNameTake[path] <>
+    If[OptionValue["Name"] === "", "", "#" <> OptionValue["Name"]]]]];
 
 Options[RakuppParse] = {"Rule" -> "", "Strict" -> False};
-RakuppParse[RakuppGrammar[gid_, label_], text_String, OptionsPattern[]] := public[Module[{raw},
+RakuppParse[RakuGrammar[gid_, label_], text_String, OptionsPattern[]] := public[Module[{raw},
   ensure[];
   raw = callRaw["rk-grammar-parse", fromWL /@ {gid, text, OptionValue["Rule"]}];
   If[$ff["rk_type"][$ctx, raw] =!= 0,
@@ -337,14 +410,14 @@ RakuppParse[RakuppGrammar[gid_, label_], text_String, OptionsPattern[]] := publi
 parseFailure[label_, text_] := Module[
   {d = toWL[callRaw["rk-grammar-diagnosis", {fromWL[text]}]]},
   If[AssociationQ[d],
-    Failure["RakuppParseError", <|
+    Failure["RakuParseError", <|
       "MessageTemplate" -> label <> ": no match \[LongDash] failed at line " <>
-          ToString[d["line"]] <> " column " <> ToString[d["col"]] <>
-          " while trying <" <> d["rule"] <> ">",
+        ToString[d["line"]] <> " column " <> ToString[d["col"]] <>
+        " while trying <" <> d["rule"] <> ">",
       "MessageParameters" -> <||>,
       "Line" -> d["line"], "Column" -> d["col"],
       "Position" -> d["pos"], "Rule" -> d["rule"]|>],
-    Failure["RakuppParseError", <|
+    Failure["RakuParseError", <|
       "MessageTemplate" -> label <> ": no match",
       "MessageParameters" -> <||>|>]]];
 
